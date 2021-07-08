@@ -1,15 +1,20 @@
+package ar.edu.ub.testing.logging;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /** A base class to define the basics of a logging strategy.
  * 
  * These could actually be used without the need of a `Logger`.
  */
 
-public abstract class Strategy
+public abstract class LogStrategy
 {
     /** Initialize the strategy.
      * 
      * Creates the internal lists to hold `Mutator`s and `Filter`s.
      */
-    public Strategy()
+    public LogStrategy()
     {
         this.mutators = new ArrayList<Mutator>();
         this.filters = new ArrayList<Filter>();
@@ -199,4 +204,7 @@ public abstract class Strategy
         }
         return false;
     }
+
+    private ArrayList<Mutator> mutators;
+    private ArrayList<Filter> filters;
 }
