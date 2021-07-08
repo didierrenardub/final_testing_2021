@@ -1,3 +1,7 @@
+package ar.edu.ub.testing.logging;
+
+import java.util.HashMap;
+
 /** Interface to implement different mutators for the logging strategies.
  *  
  *     Note: while it may seem pointless to let strategies have mutators rather than the `Logger`

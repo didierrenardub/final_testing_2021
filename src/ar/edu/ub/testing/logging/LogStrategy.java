@@ -7,7 +7,6 @@ import java.util.HashMap;
  * 
  * These could actually be used without the need of a `Logger`.
  */
-
 public abstract class LogStrategy
 {
     /** Initialize the strategy.
