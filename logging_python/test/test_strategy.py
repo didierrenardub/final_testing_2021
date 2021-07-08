@@ -48,4 +48,24 @@ def test_log():
                 strat2.clear_mutators()
                 strat2.clear_filters()
 
-        
+def test_add_remove_mutator():
+    m1 = Mutator()
+
+    assert strat1.add_mutator(m1) == True
+    assert strat1.add_mutator(m1) == False
+    assert m1 in strat1.mutators()
+
+    assert strat1.remove_mutator(m1) == True
+    assert strat1.remove_mutator(m1) == False
+    assert m1 not in strat1.mutators()
+
+def test_add_remove_filter():
+    f1 = Filter()
+
+    assert strat1.add_filter(f1) == True
+    assert strat1.add_filter(f1) == False
+    assert f1 in strat1.filters()
+
+    assert strat1.remove_filter(f1) == True
+    assert strat1.remove_filter(f1) == False
+    assert f1 not in strat1.filters()
