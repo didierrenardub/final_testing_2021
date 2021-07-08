@@ -69,3 +69,19 @@ def test_add_remove_filter():
     assert strat1.remove_filter(f1) == True
     assert strat1.remove_filter(f1) == False
     assert f1 not in strat1.filters()
+
+def test_clear_mutator_filter():
+    m1 = Mutator()
+    f1 = Filter()
+
+    strat1.clear_mutators()
+    strat1.clear_filters()
+    assert strat1.mutators() == []
+    assert strat1.filters() == []
+
+    strat1.add_mutator(m1)
+    strat1.add_filter(f1)
+    strat1.clear_mutators()
+    strat1.clear_filters()
+    assert strat1.mutators() == []
+    assert strat1.filters() == []
