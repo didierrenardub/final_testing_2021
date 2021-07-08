@@ -84,5 +84,5 @@ public class Logger extends LogStrategy
         }
     }
 
-    private ArrayList<LogStrategy> strategies = new ArrayList<>();
+    private ArrayList<LogStrategy> strategies = new ArrayList<LogStrategy>();
 }

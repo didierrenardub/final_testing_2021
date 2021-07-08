@@ -46,7 +46,7 @@ public abstract class LogStrategy
      */
     public boolean log(String text, HashMap<String, String> extraData)
     {
-        String mutatedMessage = this.mutate(text, extra_data);
+        String mutatedMessage = this.mutate(text, extraData);
         if (!this.filter(mutatedMessage, extraData))
         {
             this.logImplementation(mutatedMessage, extraData);
