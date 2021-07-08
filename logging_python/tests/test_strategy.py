@@ -39,7 +39,18 @@ def test_strategy_remove_mutator():
     assert s.remove_mutator(m1) == True and s.mutators() == [m2]
     assert s.remove_mutator(m1) == False and s.mutators() == [m2]
 
-    
+
+def test_strategy_clear_mutators():
+    s = Strategy()
+    m1 = Mutator()
+    s.add_mutator(m1)
+
+    assert s.clear_mutators() == True and s.mutators() == []
+    assert s.clear_mutators() == True
+
+
+
+
 
 
 
