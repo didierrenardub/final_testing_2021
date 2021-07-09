@@ -84,7 +84,7 @@ def test_strategy_clear_filters():
     assert s.clear_filters() == True
 
 
-class timeStamp(Mutator):
+class TimeStamp(Mutator):
     def mutate(self, text: str, extra_data: dict[str, str] = None) -> str:
         if extra_data is not None and "time" in extra_data.keys():
             ts = extra_data.get("time")
@@ -96,11 +96,11 @@ class timeStamp(Mutator):
 
 def test_strategy__mutate():
     s = Strategy()
-    s.add_mutator(timeStamp)
+    s.add_mutator(TimeStamp)
     assert s.mutators[0].mutate("string", {"time":"123"}) == "123: string"
 
 
-class filterByLength(Filter):
+class FilterByLength(Filter):
     def filter(self, text: str, **extra_data: int) -> bool:
        
         if extra_data is not None:
@@ -113,7 +113,7 @@ class filterByLength(Filter):
 
 def test_strategy__filter():
     s = Strategy()
-    s.add_filter(filterByLength)
+    s.add_filter(FilterByLength)
     assert s.filters[0].filter("str", 0, 4) == False
     assert s.filters[0].filter("str", 0, 3) == True
     assert s.filters[0].filter("str", 3, 4) == False
@@ -121,3 +121,18 @@ def test_strategy__filter():
     assert s.filters[0].filter("str", 2) == True
 
 
+class StrategyImpl(Strategy):
+    def __init__(self):
+        Strategy().__init__()
+
+    def _log(self, text: str, **extra_data):
+        return text
+
+def test_strategy_log():
+    s = StrategyImpl()
+    s.add_filter(FilterByLength)
+    s.add_mutator(TimeStamp)
+
+    assert s.log("string") == True
+    assert s.log("string", 5) == False
+    
