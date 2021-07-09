@@ -7,14 +7,40 @@ from ..mutator import Mutator
 from ..strategy import Strategy
 
 
-strat1 = Strategy()
+class MyMutator(Mutator):
+    def mutate(self, text: str, extra_data: dict= None) -> str:
+        if extra_data is not None and extra_data["prefix123"]:
+            return "123" + text
+        return text
+    
+class MyStrategy(Strategy):
+    def _log(self, text: str, **extra_data):
+        return text
 
 def test_underscore_log():
+    strat1 = Strategy()
     with raises(NotImplementedError):
         strat1._log("some_text")
 
-def test_log():
+def test_text_none():
+    m1 = MyMutator()
+    s1 = MyStrategy()
+    s1.add_mutator(m1)
+    param = {"prefix123":True}
+    assert s1.log(None, param) == False
 
+def test_param_none():
+    s1 = MyStrategy()
+    assert s1.log("some_text", None) == True
+
+def test_text_param_none():
+    s1 = MyStrategy()
+    assert s1.log(None, None) == False
+
+def test_log_filter_mutate():
+    strat1 = Strategy()
+
+    # Implementando funciones de interfaces + Mock
     def _log(text: str, **extra_data):
         """Mocked _log"""
         print(f"LOGGED: {text}")
@@ -25,23 +51,30 @@ def test_log():
         return True if text == "filter_me" else False
     mocked_filter = my_filter
     
-    def my_mutator(text: str, **extra_data):
+    def my_mutator(text: str, extra_data):
         """Mocked mutator"""
         return "filter_me"
     mocked_mutator = my_mutator
+    # Fin de la implementacion de funciones de interfaces + Mock
 
     strat2 = Strategy()
     f1 = Filter()
     m1 = Mutator()
-    with patch.object(strat2, "_log", return_value=mocked_log):
+    with patch.object(strat2, "_log", side_effect=mocked_log):
+        # Aca pruebo simplemente que el logueo suceda
         assert strat2.log("some_test") == True
 
-        with patch.object(f1, "filter", return_value=mocked_filter):
+        # Aca pruebo que el logueo no suceda si el texto enviado esta en un filtro
+        # Esto al mismo tiempo me permite testear la logica de filtrado
+        with patch.object(f1, "filter", side_effect=mocked_filter):
             strat2.add_filter(f1)
             assert strat2.log("filter_me") == False
             strat1.clear_filters()
 
-            with patch.object(m1, "mutate", return_value=mocked_mutator):
+            # Aca pruebo que el logueo no suceda si el texto enviado esta en un filtro
+            # Para ser filtrado, un mutador va a cambiar el texto de entrada por uno filtrable
+            # Esto al mismo tiempo me permite testear la logica de mutacion
+            with patch.object(m1, "mutate", side_effect=mocked_mutator):
                 strat2.add_filter(f1)
                 strat2.add_mutator(m1)
                 assert strat2.log("mutate_me_and_filter_me") == False
@@ -50,6 +83,7 @@ def test_log():
 
 def test_add_remove_mutator():
     m1 = Mutator()
+    strat1 = Strategy()
 
     assert strat1.add_mutator(m1) == True
     assert strat1.add_mutator(m1) == False
@@ -61,6 +95,7 @@ def test_add_remove_mutator():
 
 def test_add_remove_filter():
     f1 = Filter()
+    strat1 = Strategy()
 
     assert strat1.add_filter(f1) == True
     assert strat1.add_filter(f1) == False
@@ -73,6 +108,7 @@ def test_add_remove_filter():
 def test_clear_mutator_filter():
     m1 = Mutator()
     f1 = Filter()
+    strat1 = Strategy()
 
     strat1.clear_mutators()
     strat1.clear_filters()
@@ -85,3 +121,34 @@ def test_clear_mutator_filter():
     strat1.clear_filters()
     assert strat1.mutators() == []
     assert strat1.filters() == []
+
+
+def test_mutation_extra_data_approach1():
+    m1 = MyMutator()
+    s1 = MyStrategy()
+    s1.add_mutator(m1)
+    param = {"prefix123":True}
+    assert s1._mutate("some_text", param).startswith("123")
+
+# def test_mutation_extra_data_approach2():
+
+#     def my_mutator(text: str, **extra_data) -> str:
+#         """Mocked mutator"""
+#         if extra_data["prefix123"]:
+#             return "123" + text
+#         return text
+#     mocked_mutator = my_mutator
+
+#     def log(text: str, **extra_data) -> str:
+#         """Mocked log"""
+#         mutated_message = my_mutator(text, **extra_data)
+#         return mutated_message
+#     mocked_log = log
+
+#     strat2 = Strategy()
+#     m1 = Mutator()
+#     with patch.object(m1, "mutate", side_effect=mocked_mutator):
+#         with patch.object(strat2, "log", side_effect=mocked_log):
+#             strat2.add_mutator(m1)
+#             assert strat2.log("some_text", prefix123=True).startswith("123")
+#             strat2.clear_mutators()
