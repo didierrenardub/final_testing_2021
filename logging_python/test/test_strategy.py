@@ -17,6 +17,8 @@ class MyStrategy(Strategy):
     def _log(self, text: str, **extra_data):
         return text
 
+### Comienzo de los tests ###
+
 def test_underscore_log():
     strat1 = Strategy()
     with raises(NotImplementedError):
@@ -37,10 +39,14 @@ def test_text_param_none():
     s1 = MyStrategy()
     assert s1.log(None, None) == False
 
+
+# Test integral donde se prueba que se loguee, luego que se filtre un logueo
+# y finalmente que se filtre un logueo luego de que la entrada sea mutada
+# para coincidir con un patron de filtrado
 def test_log_filter_mutate():
     strat1 = Strategy()
 
-    # Implementando funciones de interfaces + Mock
+    # Implementando funciones de interfaces para posterior Patcheo
     def _log(text: str, **extra_data):
         """Mocked _log"""
         print(f"LOGGED: {text}")
@@ -55,7 +61,7 @@ def test_log_filter_mutate():
         """Mocked mutator"""
         return "filter_me"
     mocked_mutator = my_mutator
-    # Fin de la implementacion de funciones de interfaces + Mock
+    # Fin de la implementacion de funciones de interfaces para posterior Patcheo
 
     strat2 = Strategy()
     f1 = Filter()
@@ -64,14 +70,14 @@ def test_log_filter_mutate():
         # Aca pruebo simplemente que el logueo suceda
         assert strat2.log("some_test") == True
 
-        # Aca pruebo que el logueo no suceda si el texto enviado esta en un filtro
+        # Aca pruebo que el logueo NO suceda si el texto enviado esta en un filtro
         # Esto al mismo tiempo me permite testear la logica de filtrado
         with patch.object(f1, "filter", side_effect=mocked_filter):
             strat2.add_filter(f1)
             assert strat2.log("filter_me") == False
             strat1.clear_filters()
 
-            # Aca pruebo que el logueo no suceda si el texto enviado esta en un filtro
+            # Aca pruebo que el logueo NO suceda si el texto enviado esta en un filtro
             # Para ser filtrado, un mutador va a cambiar el texto de entrada por uno filtrable
             # Esto al mismo tiempo me permite testear la logica de mutacion
             with patch.object(m1, "mutate", side_effect=mocked_mutator):
