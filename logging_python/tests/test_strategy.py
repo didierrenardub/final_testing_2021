@@ -2,6 +2,7 @@ from ..mutator import Mutator
 from ..filter import Filter
 from ..strategy import Strategy
 from pytest import raises
+from datetime import datetime
 
 
 def test_strategy__log():
@@ -81,3 +82,42 @@ def test_strategy_clear_filters():
 
     assert s.clear_filters() == True and s.filters() == []
     assert s.clear_filters() == True
+
+
+class timeStamp(Mutator):
+    def mutate(self, text: str, extra_data: dict[str, str] = None) -> str:
+        if extra_data is not None and "time" in extra_data.keys():
+            ts = extra_data.get("time")
+            return f"{ts}: {text}"
+        now = datetime.now()
+        ts = str(now).split(".")[0]
+        return f"{ts}: {text}"
+
+
+def test_strategy__mutate():
+    s = Strategy()
+    s.add_mutator(timeStamp)
+    assert s.mutators[0].mutate("string", {"time":"123"}) == "123: string"
+
+
+class filterByLength(Filter):
+    def filter(self, text: str, **extra_data: int) -> bool:
+       
+        if extra_data is not None:
+            if len(extra_data) == 2 and extra_data[0] < len(text) < extra_data[1]:
+                return False
+            if len(extra_data) == 1 and len(text) > extra_data[0]:
+                return True
+        return True
+        
+
+def test_strategy__filter():
+    s = Strategy()
+    s.add_filter(filterByLength)
+    assert s.filters[0].filter("str", 0, 4) == False
+    assert s.filters[0].filter("str", 0, 3) == True
+    assert s.filters[0].filter("str", 3, 4) == False
+    assert s.filters[0].filter("str", None) == False
+    assert s.filters[0].filter("str", 2) == True
+
+
