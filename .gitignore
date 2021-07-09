@@ -10,3 +10,4 @@ out/*
 .idea/vcs.xml
 target
 *.class
+venv/
